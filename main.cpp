@@ -18,4 +18,7 @@ int main()
     pc.printf("MAC: %s\r\r\n",eth.get_mac_address());
     pc.printf("IP: %s\r\r\n",eth.get_ip_address());
 
+    ModbusTCP.start(&eth);
+
+    return 1;
 }
