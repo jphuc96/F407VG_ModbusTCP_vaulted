@@ -1,5 +1,6 @@
 #include "mbed.h"
 #include "EthernetInterface.h"
+#include "MgsModbus.h"
 
 EthernetInterface eth;
 
