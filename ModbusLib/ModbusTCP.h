@@ -1,5 +1,6 @@
 
 #include <Modbus.h>
+#include "NetworkInterface.h"
 
 #ifndef __bswap_16
  #define __bswap_16(num) ((uint16_t)num>>8) | ((uint16_t)num<<8)
@@ -44,8 +45,8 @@ class ModbusTCP : public Modbus {
     MBAP_t _MBAP;
 	cbModbusConnect cbConnect = nullptr;
 	cbModbusConnect cbDisconnect = nullptr;
-	WiFiServer* server = nullptr;
-	WiFiClient* client[MODBUSTCP_MAX_CLIENTS];
+	TCPServer* server;
+	TCPSocket* client;
 	std::vector<TTransaction> _trans;
 	int16_t		transactionId = 0;  // Last started transaction. Increments on unsuccessful transaction start too.
 	int8_t n = -1;
@@ -57,7 +58,7 @@ class ModbusTCP : public Modbus {
 	bool send(IPAddress ip, cbTransaction cb);
 
 	public:
-	ModbusTCP();
+	ModbusTCP(EthernetInterface *_eth);
 	uint16_t lastTransaction();
 	bool isTransaction(uint16_t id);
 	bool isConnected(IPAddress ip);

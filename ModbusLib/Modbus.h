@@ -1,11 +1,5 @@
-/*
-    Modbuc.h - Header for Modbus Base Library
-    Copyright (C) 2014 Andr� Sarmento Barbosa
-                  2017-2018 Alexander Emelianov (a.m.emelianov@gmail.com)
-*/
-#pragma once
 
-#include "Arduino.h"
+#include "mbed.h"
 
 //#define MB_GLOBAL_REGS
 #define MB_MAX_REGS     32

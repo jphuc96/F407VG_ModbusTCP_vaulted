@@ -5,7 +5,8 @@
 */
 #include "ModbusTCP.h"
 
-ModbusTCP::ModbusTCP() {
+ModbusTCP::ModbusTCP(EthernetInterface *_eth) {
+	socket = new TCPSocket();
 	for (uint8_t i = 0; i < MODBUSTCP_MAX_CLIENTS; i++)
 		client[i] = nullptr;
 }
