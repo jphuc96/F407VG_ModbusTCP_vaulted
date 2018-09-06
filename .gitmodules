@@ -2,3 +2,6 @@
 	path = mbed-os
 	url = git@github.com:jphuc96/mbed-os
 	branch = STM32
+[submodule "ModbusLib"]
+	path = ModbusLib
+	url = git@github.com:jphuc96/ModbusLib
