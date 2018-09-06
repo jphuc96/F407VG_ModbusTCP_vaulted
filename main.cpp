@@ -8,10 +8,19 @@ TCPServer srv;
 TCPSocket clt_sock;
 SocketAddress clt_addr;
 
+DigitalOut LedRed(PD_12);
+DigitalOut LedBlue(PD_13);
+DigitalOut LedGreen(PD_14);
+DigitalOut LedYellow(PD_15);;
+
 Serial pc(PA_9,PA_10,115200);
 
 int main()
 {
+    LedBlue = 1;
+    wait_ms(100);
+    LedBlue = 0;
+
     pc.printf("=======================\r\r\n");
     pc.printf("====mbed Modbus TCP====\r\r\n");
     pc.printf("=======================\r\r\n");
