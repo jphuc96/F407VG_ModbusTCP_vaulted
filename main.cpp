@@ -2,11 +2,11 @@
 #include "EthernetInterface.h"
 #include "TCPServer.h"
 #include "TCPSocket.h"
+#include "Modbus.h"
+#include "ModbusTCP.h"
 
 EthernetInterface eth;
-TCPServer srv;
-TCPSocket clt_sock;
-SocketAddress clt_addr;
+ModbusTCP MB(&eth);
 
 DigitalOut LedRed(PD_12);
 DigitalOut LedBlue(PD_13);
@@ -14,7 +14,7 @@ DigitalOut LedGreen(PD_14);
 DigitalOut LedYellow(PD_15);;
 
 Serial pc(PA_9,PA_10,115200);
-
+uint8_t buffer[64];
 int main()
 {
     LedBlue = 1;
@@ -29,20 +29,12 @@ int main()
     pc.printf("MAC: %s\r\r\n",eth.get_mac_address());
     pc.printf("IP: %s\r\r\n",eth.get_ip_address());
 
-    srv.open(&eth);
-    srv.bind(eth.get_ip_address(), 502);
-    srv.listen(5);
+    MB.server_open(MODBUSTCP_PORT);
 
-    while (true) {
-        srv.accept(&clt_sock, &clt_addr);
-        pc.printf("accept %s:%d\n", clt_addr.get_ip_address(), clt_addr.get_port());
-        char buffer[100] = "Hello World! \r\r\nModbus TCP\r\r\n";
-        clt_sock.send(buffer,sizeof(buffer));
-        char rbuffer[64];
-        int rcount = clt_sock.recv(rbuffer, sizeof(rbuffer));
-        pc.printf("recv %s | %d \r\r\n",rbuffer,rcount);
-        delete[] rbuffer;
+    while (true)
+    {
+        pc.printf("Waiting...\r\r\n");
+        MB.server_run();
     }
-
     return 1;
 }
