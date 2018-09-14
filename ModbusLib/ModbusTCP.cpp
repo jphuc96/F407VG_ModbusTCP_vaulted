@@ -4,9 +4,8 @@
 */
 #include "ModbusTCP.h"
 
-uint8_t buffer[64];
+uint8_t buffer[MODBUSTCP_BUFFER_SIZE];
 extern Serial pc;
-uint16_t ret;
 
 ModbusTCP::ModbusTCP(NetworkInterface* _net) : network(_net)
 {
@@ -34,8 +33,8 @@ void ModbusTCP::server_run()
     {
         _server->accept(_socket);
         pc.printf("Accept \r\r\n");
-        _socket->send("Hello !!\r\r\n",11);
-        pc.printf("Send \r\r\n");
+        // _socket->send("Hello !!\r\r\n",11);
+        // pc.printf("Send \r\r\n");
 
         while (1) {
             _socket->set_blocking(true);
@@ -48,7 +47,15 @@ void ModbusTCP::server_run()
             }
             
             if( r > 0 ) { // We received something
-                pc.printf("Recv: %s Size: %d\r\r\n",buffer,r);
+                // pc.printf("Recv: %s Size: %d\r\r\n",buffer,r);
+                for(int i=0;i<r;i++)
+                {
+                    pc.printf("%.2x  ",buffer[i]);
+                }
+                pc.printf("\r\r\n");
+                //Send: 00  0D  00  00  00  0B  01  03  08  F1  AF  0F  DE  01  47  89  1D
+                uint8_t send_buf[] = {0x00,0x0D,0x00,0x00,0x00,0x0B,0x01,0x03,0x08,0xF1,0xAF,0x0F,0xDE,0x01,0x47,0x89,0x1D};
+                _socket->send(send_buf,sizeof(send_buf));
             }
             
         }
