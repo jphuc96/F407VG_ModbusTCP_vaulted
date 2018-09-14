@@ -4,9 +4,9 @@
 */
 #include "ModbusTCP.h"
 
-uint8_t buffer[64];
+uint8_t buffer[MODBUSTCP_BUFFER_SIZE];
+uint16_t test_var[4] = {0,100,200,300};
 extern Serial pc;
-uint16_t ret;
 
 ModbusTCP::ModbusTCP(NetworkInterface* _net) : network(_net)
 {
@@ -34,8 +34,8 @@ void ModbusTCP::server_run()
     {
         _server->accept(_socket);
         pc.printf("Accept \r\r\n");
-        _socket->send("Hello !!\r\r\n",11);
-        pc.printf("Send \r\r\n");
+        // _socket->send("Hello !!\r\r\n",11);
+        // pc.printf("Send \r\r\n");
 
         while (1) {
             _socket->set_blocking(true);
@@ -48,7 +48,24 @@ void ModbusTCP::server_run()
             }
             
             if( r > 0 ) { // We received something
-                pc.printf("Recv: %s Size: %d\r\r\n",buffer,r);
+                // pc.printf("Recv: %s Size: %d\r\r\n",buffer,r);
+                for(int i=0;i<r;i++)
+                {
+                    pc.printf("%.2x  ",buffer[i]);
+                }
+                pc.printf("\r\r\n");
+                //Send: 00  0D  00  00  00  0B  01  03  08  F1  AF  0F  DE  01  47  89  1D
+                test_var[0]++;
+                test_var[1]++;
+                test_var[2]++;
+                test_var[3]++;
+                uint8_t send_buf[] = {buffer[0],buffer[1],buffer[2],buffer[3],0x00,0x0B,0x01,    //MBAP
+                                      0x03,0x08,
+                                      highByte(test_var[0]),lowByte(test_var[0]),
+                                      highByte(test_var[1]),lowByte(test_var[1]),
+                                      highByte(test_var[2]),lowByte(test_var[2]),
+                                      highByte(test_var[3]),lowByte(test_var[3])};
+                _socket->send(send_buf,sizeof(send_buf));
             }
             
         }
