@@ -79,7 +79,7 @@ class Modbus {
         word Reg(word address);
 
     protected:
-        byte *_frame;
+        byte *_recv_frame;
         byte  _len;
         byte  _reply;
         void receivePDU(byte* frame);

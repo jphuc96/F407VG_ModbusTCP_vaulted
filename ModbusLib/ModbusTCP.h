@@ -22,6 +22,8 @@ class ModbusTCP : public Modbus {
         TCPServer* _server;
         TCPSocket* _socket;
         SocketAddress* _address;
+        byte _recv_buffer[MODBUSTCP_BUFFER_SIZE];
+        byte* _send_buffer;
         byte _MBAP[7];
 
     public:

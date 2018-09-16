@@ -32,25 +32,12 @@ int main()
 
     MB.server_open(MODBUSTCP_PORT);
 
-    pc.printf("Running...\r\r\r\r\n");
+    MB.addHreg(0,100);
+    MB.addHreg(1,200);
+    MB.addHreg(2,300);
+    MB.addHreg(3,400);
+
     MB.server_run();
 
     return 1;
 }
-
-
-// while (true)
-//     {
-//         int n = clt_sock.recv(buffer, sizeof(buffer));
-//         if( n < 0 )
-//         {
-//             clt_sock.close();
-//             srv.close();
-//         }
-//         if( n > 0 )
-//         {
-//             buffer[n] = '\0';
-//             printf("length : %d\r\r\r\n", n);
-//             clt_sock.send(buffer, n);
-//         }
-//     }

@@ -1,6 +1,6 @@
 /*
     Modbus.cpp - Source for Modbus Base Library
-    Copyright (C) 2014 André Sarmento Barbosa
+    Copyright (C) 2014 Andrï¿½ Sarmento Barbosa
 */
 #include "Modbus.h"
 
@@ -173,11 +173,11 @@ void Modbus::receivePDU(byte* frame) {
 
 void Modbus::exceptionResponse(byte fcode, byte excode) {
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
     _len = 2;
-    _frame = (byte *) malloc(_len);
-    _frame[0] = fcode + 0x80;
-    _frame[1] = excode;
+    _recv_frame = (byte *) malloc(_len);
+    _recv_frame[0] = fcode + 0x80;
+    _recv_frame[1] = excode;
 
     _reply = MB_REPLY_NORMAL;
 }
@@ -198,21 +198,21 @@ void Modbus::readRegisters(word startreg, word numregs) {
 
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 0;
 
 	//calculate the query reply message length
 	//for each register queried add 2 bytes
 	_len = 2 + numregs * 2;
 
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_READ_REGS, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_READ_REGS;
-    _frame[1] = _len - 2;   //byte count
+    _recv_frame[0] = MB_FC_READ_REGS;
+    _recv_frame[1] = _len - 2;   //byte count
 
     word val;
     word i = 0;
@@ -220,9 +220,9 @@ void Modbus::readRegisters(word startreg, word numregs) {
         //retrieve the value from the register bank for the current register
         val = this->Hreg(startreg + i);
         //write the high byte of the register value
-        _frame[2 + i * 2]  = val >> 8;
+        _recv_frame[2 + i * 2]  = val >> 8;
         //write the low byte of the register value
-        _frame[3 + i * 2] = val & 0xFF;
+        _recv_frame[3 + i * 2] = val & 0xFF;
         i++;
 	}
 
@@ -262,19 +262,19 @@ void Modbus::writeMultipleRegisters(byte* frame,word startreg, word numoutputs, 
     }
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 5;
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_WRITE_REGS, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_WRITE_REGS;
-    _frame[1] = startreg >> 8;
-    _frame[2] = startreg & 0x00FF;
-    _frame[3] = numoutputs >> 8;
-    _frame[4] = numoutputs & 0x00FF;
+    _recv_frame[0] = MB_FC_WRITE_REGS;
+    _recv_frame[1] = startreg >> 8;
+    _recv_frame[2] = startreg & 0x00FF;
+    _recv_frame[3] = numoutputs >> 8;
+    _recv_frame[4] = numoutputs & 0x00FF;
 
     word val;
     word i = 0;
@@ -306,7 +306,7 @@ void Modbus::readCoils(word startreg, word numregs) {
     }
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 0;
 
     //Determine the message length = function type, byte count and
@@ -314,14 +314,14 @@ void Modbus::readCoils(word startreg, word numregs) {
 	_len = 2 + numregs/8;
 	if (numregs%8) _len++; //Add 1 to the message length for the partial byte.
 
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_READ_COILS, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_READ_COILS;
-    _frame[1] = _len - 2; //byte count (_len - function code and byte count)
+    _recv_frame[0] = MB_FC_READ_COILS;
+    _recv_frame[1] = _len - 2; //byte count (_len - function code and byte count)
 
     byte bitn = 0;
     word totregs = numregs;
@@ -329,9 +329,9 @@ void Modbus::readCoils(word startreg, word numregs) {
 	while (numregs--) {
         i = (totregs - numregs) / 8;
 		if (this->Coil(startreg))
-			bitSet(_frame[2+i], bitn);
+			bitSet(_recv_frame[2+i], bitn);
 		else
-			bitClear(_frame[2+i], bitn);
+			bitClear(_recv_frame[2+i], bitn);
 		//increment the bit index
 		bitn++;
 		if (bitn == 8) bitn = 0;
@@ -357,7 +357,7 @@ void Modbus::readInputStatus(word startreg, word numregs) {
     }
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 0;
 
     //Determine the message length = function type, byte count and
@@ -365,14 +365,14 @@ void Modbus::readInputStatus(word startreg, word numregs) {
 	_len = 2 + numregs/8;
 	if (numregs%8) _len++; //Add 1 to the message length for the partial byte.
 
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_READ_INPUT_STAT, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_READ_INPUT_STAT;
-    _frame[1] = _len - 2;
+    _recv_frame[0] = MB_FC_READ_INPUT_STAT;
+    _recv_frame[1] = _len - 2;
 
     byte bitn = 0;
     word totregs = numregs;
@@ -380,9 +380,9 @@ void Modbus::readInputStatus(word startreg, word numregs) {
 	while (numregs--) {
         i = (totregs - numregs) / 8;
 		if (this->Ists(startreg))
-			bitSet(_frame[2+i], bitn);
+			bitSet(_recv_frame[2+i], bitn);
 		else
-			bitClear(_frame[2+i], bitn);
+			bitClear(_recv_frame[2+i], bitn);
 		//increment the bit index
 		bitn++;
 		if (bitn == 8) bitn = 0;
@@ -408,21 +408,21 @@ void Modbus::readInputRegisters(word startreg, word numregs) {
     }
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 0;
 
 	//calculate the query reply message length
 	//for each register queried add 2 bytes
 	_len = 2 + numregs * 2;
 
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_READ_INPUT_REGS, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_READ_INPUT_REGS;
-    _frame[1] = _len - 2;
+    _recv_frame[0] = MB_FC_READ_INPUT_REGS;
+    _recv_frame[1] = _len - 2;
 
     word val;
     word i = 0;
@@ -430,9 +430,9 @@ void Modbus::readInputRegisters(word startreg, word numregs) {
         //retrieve the value from the register bank for the current register
         val = this->Ireg(startreg + i);
         //write the high byte of the register value
-        _frame[2 + i * 2]  = val >> 8;
+        _recv_frame[2 + i * 2]  = val >> 8;
         //write the low byte of the register value
-        _frame[3 + i * 2] = val & 0xFF;
+        _recv_frame[3 + i * 2] = val & 0xFF;
         i++;
 	}
 
@@ -479,19 +479,19 @@ void Modbus::writeMultipleCoils(byte* frame,word startreg, word numoutputs, byte
     }
 
     //Clean frame buffer
-    free(_frame);
+    free(_recv_frame);
 	_len = 5;
-    _frame = (byte *) malloc(_len);
-    if (!_frame) {
+    _recv_frame = (byte *) malloc(_len);
+    if (!_recv_frame) {
         this->exceptionResponse(MB_FC_WRITE_COILS, MB_EX_SLAVE_FAILURE);
         return;
     }
 
-    _frame[0] = MB_FC_WRITE_COILS;
-    _frame[1] = startreg >> 8;
-    _frame[2] = startreg & 0x00FF;
-    _frame[3] = numoutputs >> 8;
-    _frame[4] = numoutputs & 0x00FF;
+    _recv_frame[0] = MB_FC_WRITE_COILS;
+    _recv_frame[1] = startreg >> 8;
+    _recv_frame[2] = startreg & 0x00FF;
+    _recv_frame[3] = numoutputs >> 8;
+    _recv_frame[4] = numoutputs & 0x00FF;
 
     byte bitn = 0;
     word totoutputs = numoutputs;
