@@ -3,10 +3,11 @@
 #include "TCPServer.h"
 #include "TCPSocket.h"
 #include "Modbus.h"
-#include "ModbusTCP.h"
+#include "Modbus-TCP.h"
 
 EthernetInterface eth;
-ModbusTCP MB(&eth);
+// ModbusTCP MB(&eth);
+ModbusTCP modbustcp;
 
 DigitalOut LedRed(PD_12);
 DigitalOut LedBlue(PD_13);
@@ -34,14 +35,14 @@ int main()
     pc.printf("MAC: %s\r\r\r\r\n",eth.get_mac_address());
     pc.printf("IP: %s\r\r\r\r\n",eth.get_ip_address());
 
+    modbustcp.addHreg(0,100);
+    modbustcp.addHreg(1,200);
+    modbustcp.addHreg(2,300);
+    modbustcp.addHreg(3,400);
+
     // MB.server_start(MODBUSTCP_PORT);
 
-    MB.addHreg(0,100);
-    MB.addHreg(1,200);
-    MB.addHreg(2,300);
-    MB.addHreg(3,400);
-
-    // thread_modbustcp.start(task_modbustcp);
+    modbustcp.start(&eth,502);
 
     while(1)
     {
@@ -51,9 +52,4 @@ int main()
         Thread::wait(500);
     }
     return 1;
-}
-
-void task_modbustcp()
-{
-    // MB.server_run();
 }
