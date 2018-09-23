@@ -57,6 +57,7 @@ int main()
 
 void task_update_registers()
 {
+    //update register here, need to check Mutex
     for(;;)
     {
         modbustcp.Hreg(0,rand());
