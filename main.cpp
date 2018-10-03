@@ -49,6 +49,9 @@ int main()
     modbustcp_s.addHreg(2,300);
     modbustcp_s.addHreg(3,400);
 
+    modbustcp_s.start(&eth,502);
+    pc.printf("ModbusTCP server started\r\r\n");
+
     thread_update_registers.start(task_update_registers);
     thread_modbusrtu_routine.start(task_modbusrtu_routine);
 
@@ -66,15 +69,19 @@ void task_update_registers()
 {
     //update registers here, need to check Mutex
     
+    modbustcp_s.addHreg(0,100);
+    modbustcp_s.addHreg(1,200);
+    modbustcp_s.addHreg(2,300);
+    modbustcp_s.addHreg(3,400);
 
     AnalogIn cpu_temp(ADC_TEMP);
     AnalogIn vbat(ADC_VBAT);
     for(;;)
-    {
-        // modbustcp_s.Hreg(0,cpu_temp.read_u16());
-        // modbustcp_s.Hreg(1,vbat.read_u16());
-        // modbustcp_s.Hreg(2,rand());
-        // modbustcp_s.Hreg(3,rand());
+    { 
+        modbustcp_s.Hreg(0,cpu_temp.read_u16());
+        modbustcp_s.Hreg(1,vbat.read_u16());
+        modbustcp_s.Hreg(2,rand());
+        modbustcp_s.Hreg(3,rand());
 
         Thread::wait(500);
     }
@@ -97,7 +104,6 @@ void task_modbusrtu_routine()
         else
         {
             //nothing
-        }  
-        Thread::wait(1000);
-    }
+        }
+    }  
 }
